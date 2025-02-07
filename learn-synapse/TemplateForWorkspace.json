@@ -89,7 +89,7 @@
 								"type": "DatasetReference",
 								"parameters": {
 									"SchemaName": "saleslt",
-									"TableName": "customer"
+									"TableName": "CustomerAddress"
 								}
 							}
 						],
@@ -98,7 +98,7 @@
 								"referenceName": "ADLS_DS_csv",
 								"type": "DatasetReference",
 								"parameters": {
-									"FolderName": "SynapseProject/Raw"
+									"FolderName": "Project4/landing/CustomerAddress"
 								}
 							}
 						]
@@ -133,6 +133,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FolderName",
+							"type": "Expression"
+						},
 						"fileSystem": "landing"
 					},
 					"columnDelimiter": ",",

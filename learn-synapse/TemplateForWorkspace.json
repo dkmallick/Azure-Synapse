@@ -115,6 +115,55 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/Customer Spark Notebook')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Notebook1",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "Notebook-for-Customer",
+								"type": "NotebookReference"
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "SmallCluster",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": null,
+								"spark.dynamicAllocation.minExecutors": null,
+								"spark.dynamicAllocation.maxExecutors": null
+							},
+							"driverSize": "Small",
+							"numExecutors": null
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/Notebook-for-Customer')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/SmallCluster')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ADLS_DS_csv')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -385,22 +434,69 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/SQL script 1')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"name": "[concat(parameters('workspaceName'), '/Notebook-for-Customer')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
 			"properties": {
-				"content": {
-					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseDelimitedTextFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseDelimitedTextFormat] \n\tWITH ( FORMAT_TYPE = DELIMITEDTEXT ,\n\t       FORMAT_OPTIONS (\n\t\t\t FIELD_TERMINATOR = ',',\n\t\t\t FIRST_ROW = 11,\n\t\t\t USE_TYPE_DEFAULT = FALSE\n\t\t\t))\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'landing_adls5synapse_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [landing_adls5synapse_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://landing@adls5synapse.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE dbo.Orders (\n\t[Region] nvarchar(4000),\n\t[Country] nvarchar(4000),\n\t[ItemType] nvarchar(4000),\n\t[SalesChannel] nvarchar(4000),\n\t[OrderPriority] nvarchar(4000),\n\t[OrderID] bigint,\n\t[UnitsSold] bigint,\n\t[UnitPrice] float,\n\t[UnitCost] float,\n\t[TotalRevenue] float,\n\t[TotalCost] float,\n\t[TotalProfit] float\n\t)\n\tWITH (\n\tLOCATION = 'Order.csv',\n\tDATA_SOURCE = [landing_adls5synapse_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseDelimitedTextFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.Orders\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "Serverless_DB",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "SmallCluster",
+					"type": "BigDataPoolReference"
 				},
-				"type": "SqlQuery"
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "fc542c68-2c0a-4932-8648-8ca688fcef4d"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/8c5b7985-7f6a-483c-9637-a6887dea60c9/resourceGroups/synapse_rg/providers/Microsoft.Synapse/workspaces/learn-synapse/bigDataPools/SmallCluster",
+						"name": "SmallCluster",
+						"type": "Spark",
+						"endpoint": "https://learn-synapse.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SmallCluster",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.4",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"collapsed": false
+						},
+						"source": [
+							"df = spark.read.load('abfss://landing@adls5synapse.dfs.core.windows.net/Project4/landing/Customer.csv', format = 'csv', header = True, inferSchema = True)\r\n",
+							"df.write.save(path = \"abfss://landing@adls5synapse.dfs.core.windows.net/Project4/BronzeLayer/Customer/\")"
+						],
+						"outputs": [],
+						"execution_count": 4
+					}
+				]
 			},
 			"dependsOn": []
 		},

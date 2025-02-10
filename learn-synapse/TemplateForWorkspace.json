@@ -164,6 +164,55 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/CustomerAddress Spark Notebook')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Notebook CustomerAddress",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "Notebook-for-CustomerAddress",
+								"type": "NotebookReference"
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "SmallCluster",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": null,
+								"spark.dynamicAllocation.minExecutors": null,
+								"spark.dynamicAllocation.maxExecutors": null
+							},
+							"driverSize": "Small",
+							"numExecutors": null
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/Notebook-for-CustomerAddress')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/SmallCluster')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ADLS_DS_csv')]",
 			"type": "Microsoft.Synapse/workspaces/datasets",
 			"apiVersion": "2019-06-01-preview",
@@ -495,6 +544,72 @@
 						],
 						"outputs": [],
 						"execution_count": 4
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Notebook-for-CustomerAddress')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "SmallCluster",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "dd059d34-f49d-45dd-8104-0f6916382efd"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "python"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/8c5b7985-7f6a-483c-9637-a6887dea60c9/resourceGroups/synapse_rg/providers/Microsoft.Synapse/workspaces/learn-synapse/bigDataPools/SmallCluster",
+						"name": "SmallCluster",
+						"type": "Spark",
+						"endpoint": "https://learn-synapse.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SmallCluster",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.4",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28,
+						"automaticScaleJobs": false
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"df = spark.read.load('abfss://landing@adls5synapse.dfs.core.windows.net/Project4/landing/CustomerAddress.csv', format = 'csv', header = True, inferSchema = True)\r\n",
+							"df.write.save(path = \"abfss://landing@adls5synapse.dfs.core.windows.net/Project4/BronzeLayer/CustomerAddress/\")"
+						],
+						"outputs": [],
+						"execution_count": null
 					}
 				]
 			},

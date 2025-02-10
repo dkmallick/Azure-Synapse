@@ -581,6 +581,106 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script Bronze Customer')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'landing_adls5synapse_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [landing_adls5synapse_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://landing@adls5synapse.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE bronze.customer (\n\t[CustomerID] int,\n\t[NameStyle] bit,\n\t[Title] nvarchar(4000),\n\t[FirstName] nvarchar(4000),\n\t[MiddleName] nvarchar(4000),\n\t[LastName] nvarchar(4000),\n\t[Suffix] nvarchar(4000),\n\t[CompanyName] nvarchar(4000),\n\t[SalesPerson] nvarchar(4000),\n\t[EmailAddress] nvarchar(4000),\n\t[Phone] nvarchar(4000),\n\t[PasswordHash] nvarchar(4000),\n\t[PasswordSalt] nvarchar(4000),\n\t[rowguid] nvarchar(4000),\n\t[ModifiedDate] datetime2(7)\n\t)\n\tWITH (\n\tLOCATION = 'Project4/BronzeLayer/Customer/**',\n\tDATA_SOURCE = [landing_adls5synapse_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM bronze.customer\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "Serverless_DB",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script Bronze CustomerAddress')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'landing_adls5synapse_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [landing_adls5synapse_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://landing@adls5synapse.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE bronze.CustomerAddress (\n\t[CustomerID] int,\n\t[AddressID] int,\n\t[AddressType] nvarchar(4000),\n\t[rowguid] nvarchar(4000),\n\t[ModifiedDate] datetime2(7)\n\t)\n\tWITH (\n\tLOCATION = 'Project4/BronzeLayer/CustomerAddress/**',\n\tDATA_SOURCE = [landing_adls5synapse_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM bronze.CustomerAddress\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "Serverless_DB",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script Schema Creation')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "CREATE SCHEMA bronze GO\nCREATE SCHEMA silver GO\nCREATE SCHEMA Gold GO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "Serverless_DB",
+						"poolName": "Built-in"
+					},
+					"resultLimit": -1
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script Silver Customer')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'landing_adls5synapse_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [landing_adls5synapse_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://landing@adls5synapse.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE silver.Customer (\n\t[CustomerID] int,\n\t[NameStyle] bit,\n\t[Title] nvarchar(4000),\n\t[FirstName] nvarchar(4000),\n\t[MiddleName] nvarchar(4000),\n\t[LastName] nvarchar(4000),\n\t[Suffix] nvarchar(4000),\n\t[CompanyName] nvarchar(4000),\n\t[SalesPerson] nvarchar(4000),\n\t[EmailAddress] nvarchar(4000),\n\t[Phone] nvarchar(4000),\n\t[PasswordHash] nvarchar(4000),\n\t[PasswordSalt] nvarchar(4000),\n\t[rowguid] nvarchar(4000),\n\t[ModifiedDate] datetime2(7)\n\t)\n\tWITH (\n\tLOCATION = 'Project4/SilverLayer/Customer/**',\n\tDATA_SOURCE = [landing_adls5synapse_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM silver.Customer\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "Serverless_DB",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script Silver CustomerAddress')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'landing_adls5synapse_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [landing_adls5synapse_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://landing@adls5synapse.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE silver.CustomerAddress (\n\t[CustomerID] int,\n\t[AddressID] int,\n\t[AddressType] nvarchar(4000),\n\t[rowguid] nvarchar(4000),\n\t[ModifiedDate] datetime2(7)\n\t)\n\tWITH (\n\tLOCATION = 'Project4/SilverLayer/CustomerAddress/**',\n\tDATA_SOURCE = [landing_adls5synapse_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM silver.CustomerAddress\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "Serverless_DB",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/Customer Silver Layer Notebook')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",

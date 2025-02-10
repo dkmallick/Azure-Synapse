@@ -1,0 +1,68 @@
+{
+	"name": "CustomerInfo Gold Layer Notebook",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "SmallCluster",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "015f5a5b-cd8f-4026-bfc6-69448e69bc84"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/8c5b7985-7f6a-483c-9637-a6887dea60c9/resourceGroups/synapse_rg/providers/Microsoft.Synapse/workspaces/learn-synapse/bigDataPools/SmallCluster",
+				"name": "SmallCluster",
+				"type": "Spark",
+				"endpoint": "https://learn-synapse.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SmallCluster",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.4",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"collapsed": false
+				},
+				"source": [
+					"cd = spark.read.load('abfss://landing@adls5synapse.dfs.core.windows.net/Project4/SilverLayer/Customer/part-00000-23238c8e-c939-4dcc-bd6e-c2e3263cd735-c000.snappy.parquet', format='parquet')\r\n",
+					"cad = spark.read.load('abfss://landing@adls5synapse.dfs.core.windows.net/Project4/SilverLayer/CustomerAddress/part-00000-f4dff61f-8a6c-401a-9ad9-258a12b05f87-c000.snappy.parquet', format='parquet')\r\n",
+					"from pyspark.sql.functions import expr\r\n",
+					"cad = cad.select(expr(\"CustomerID as CustID\"),\"AddressID\",\"AddressType\")\r\n",
+					"df = cd.join(cad.select(\"CustID\",\"AddressID\",\"AddressType\"), cd.CustomerID == cad.CustID, \"left\")\r\n",
+					"df.write.save(path = 'abfss://landing@adls5synapse.dfs.core.windows.net/Project4/GoldLayer/CustomerInfo/')"
+				],
+				"execution_count": 36
+			}
+		]
+	}
+}

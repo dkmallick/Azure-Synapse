@@ -1,0 +1,17 @@
+{
+	"name": "SQL script Schema Creation",
+	"properties": {
+		"content": {
+			"query": "CREATE SCHEMA bronze GO\nCREATE SCHEMA silver GO\nCREATE SCHEMA Gold GO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "Serverless_DB",
+				"poolName": "Built-in"
+			},
+			"resultLimit": -1
+		},
+		"type": "SqlQuery"
+	}
+}

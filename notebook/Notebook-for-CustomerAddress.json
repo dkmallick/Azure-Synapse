@@ -1,0 +1,61 @@
+{
+	"name": "Notebook-for-CustomerAddress",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "SmallCluster",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "a9a276a4-ecec-4778-bf95-317780c99802"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "python"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/8c5b7985-7f6a-483c-9637-a6887dea60c9/resourceGroups/synapse_rg/providers/Microsoft.Synapse/workspaces/learn-synapse/bigDataPools/SmallCluster",
+				"name": "SmallCluster",
+				"type": "Spark",
+				"endpoint": "https://learn-synapse.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/SmallCluster",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.4",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"df = spark.read.load('abfss://landing@adls5synapse.dfs.core.windows.net/Project4/landing/CustomerAddress.csv', format = 'csv', header = True, inferSchema = True)\r\n",
+					"df.write.save(path = \"abfss://landing@adls5synapse.dfs.core.windows.net/Project4/BronzeLayer/CustomerAddress/\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}
